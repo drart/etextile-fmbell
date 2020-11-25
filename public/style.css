@@ -1,0 +1,34 @@
+/* this file is loaded by index.html and styles the page */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+  margin: 2em 1em;
+  line-height: 1.5em;
+}
+
+button {
+  background-color: blue;
+  color: lavender;
+  border: 2px solid currentColor;
+  border-radius: .25em;
+  cursor: pointer;
+  font-size: inherit;
+  line-height: 1.4em;
+  padding: 0.25em 1em;
+  max-width: 20ch;
+}
+
+button:hover {
+  background-color: lavender;
+  color: blue;
+}
+
+#flocking-output{
+  width: 1000px;
+  height: 200px;
+  border: 2px solid blue;
+}

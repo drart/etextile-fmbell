@@ -1,0 +1,35 @@
+<!-- This is a static file -->
+<!-- served from your routes in server.js -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>E-Textile FM Bell Sounds</title>
+
+    <!-- import the webpage's stylesheet -->
+    <link rel="stylesheet" href="/style.css" />
+
+    <!-- import the webpage's client-side javascript file -->
+    <script src="/NexusUI.js"></script>
+    <script src="/flocking-all.js"></script>
+    <script src="/play-button.js"></script>
+    <script src="/script.js" defer></script>
+    
+  </head>
+  <body>
+    
+    <main>
+      <button id="play-button">Play</button>
+      <button id="bell-button">Strike Bell</button>
+      <!--button id="simple-button">Test</button-->
+    </main>
+    
+    <div id="scope"></div>    
+    <div id="spectogram"></div>
+    
+    <div id="midi-display"></div>
+  </body>
+</html>
