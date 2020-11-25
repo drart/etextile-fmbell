@@ -1,6 +1,23 @@
 fluid.defaults("adam.synth.fmbell", {
     gradeNames: ["flock.synth"],
-  
+
+    harmonicityRatio: 2,
+    frequency: 800,
+    
+    ampEnv: {
+        ugen: "flock.ugen.line",
+        start: 1,
+        end: 0, 
+        duartion: 1
+    },
+    freqEnv: {
+        ugen: "flock.ugen.xLine",
+        rate: "control",
+        start: 1000,
+        end: 501,
+        duration: 0.1 
+    },
+
     synthDef:{
         id: "bell",
         ugen: "flock.ugen.sinOsc",
@@ -14,41 +31,23 @@ fluid.defaults("adam.synth.fmbell", {
                 duration: 0.05
             },
             mul: 200,
-            add: 800
+            add: "{that}.options.frequency"
         },
         mul: 0
     },
-  
+
     events: {
-      strike: null    
+        strike: null    
     },
-  
+
     listeners: {
-      strike: {
-        funcName: "adam.synth.fmbell.strike",
-        args: ["{that}", "{arguments}.0"]
-      }
+        "strike.setAmp": {
+            funcName: "{that}.set",
+            args: ["bell.mul", "{that}.options.ampEnv"]
+        }
     }
 
 });
-
-adam.synth.fmbell.strike = function(that, msg){
-  let ampline = {          
-    ugen: "flock.ugen.line",
-    start: 1,
-    end: 0,
-    duration: 1
-  };  
-  let freqline = {
-        ugen: "flock.ugen.xLine",
-        rate: "control",
-        start: 1000,
-        end: 501,
-        duration: 0.1 
-    };
-  that.set("bell.mul", ampline);
-  that.set("bell.freq.freq", freqline);
-};
 
 // Define an Infusion component that connects to the teensy MIDI controller
 fluid.defaults("adam.midi.teensy",{
@@ -106,13 +105,28 @@ fluid.defaults("adam.composition", {
           type: "flock.ui.enviroPlayButton",
           container: "#play-button"
         },
-        bellButton: {
+        bell1Button: {
           type: "adam.bellButton",
-          container: "#bell-button",
+          container: "#bell1-button",
           options: {
             bell: "{synth}"
           }
         },
+        bell2Button: {
+            type: "adam.bellButton",
+            container: "#bell2-button",
+            options: {
+                bell: "{synth}"
+            }
+        },
+        /*
+        bell1Drop: {
+            type: "adam.jqueryui-droppable",
+            container: "#bell1-receiver"
+            // add synth
+        }
+        */
+
     },
 
     listeners: {
@@ -130,8 +144,6 @@ fluid.defaults("adam.composition", {
     }
 });
 
-
-
 fluid.defaults("adam.simpleButton", {
     gradeNames: "fluid.viewComponent",
     
@@ -148,9 +160,28 @@ fluid.defaults("adam.simpleButton", {
     }
 });
 
+fluid.defaults("adam.jqueryui.draggable", {
+    gradeNames: "fluid.viewComponent",
+    listeners: {
+        "onCreate.makeDraggable": {
+            this: "{that}.container",
+            method: "draggable"
+        }
+    }
+});
+
+fluid.defaults("adam.jqueryui.dropable", {
+    gradeNames: "fluid.viewComponent",
+    listeners: {
+        "onCreate.makeDraggable": {
+            this: "{that}.container",
+            method: "droppable"
+        }
+    }
+});
 
 fluid.defaults("adam.bellButton", {
-  gradeNames: "adam.simpleButton",
+  gradeNames: ["adam.simpleButton", "adam.jqueryui.draggable"],
   
   bell: null,
   

@@ -11,25 +11,46 @@
 
     <!-- import the webpage's stylesheet -->
     <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/jquery-ui.css">
 
     <!-- import the webpage's client-side javascript file -->
     <script src="/NexusUI.js"></script>
     <script src="/flocking-all.js"></script>
+    <script src="/jquery-ui.min.js"></script>
     <script src="/play-button.js"></script>
     <script src="/script.js" defer></script>
     
   </head>
   <body>
+
+    <viz>
+        <div id="scope"></div>    
+        <div id="spectogram"></div>
+    </viz>
     
     <main>
-      <button id="play-button">Play</button>
-      <button id="bell-button">Strike Bell</button>
-      <!--button id="simple-button">Test</button-->
+       <div>
+          <span class="button" id="play-button">Play</span>
+       </div>
+       <div>
+           <span class="button" id="bell1-button">Bell 1</span>
+           <span class="button" id="bell2-button">Bell 2</span>
+           <span class="button" id="bell3-button">Bell 3</span>
+           <span class="button" id="bell4-button">Bell 4</span>
+           <span class="button" id="bell5-button">Bell 5</span>
+           <span class="button" id="bell6-button">Bell 6</span>
+       </div>
+       <div>
+           <span class="button" id="bell1-receiver">Bell 1</span>
+           <span class="button" id="bell2-receiver">Bell 2</span>
+           <span class="button" id="bell3-receiver">Bell 3</span>
+           <span class="button" id="bell4-receiver">Bell 4</span>
+           <span class="button" id="bell5-receiver">Bell 5</span>
+           <span class="button" id="bell6-receiver">Bell 6</span>
+       </div>
     </main>
     
-    <div id="scope"></div>    
-    <div id="spectogram"></div>
-    
     <div id="midi-display"></div>
+
   </body>
 </html>

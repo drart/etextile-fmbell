@@ -12,7 +12,8 @@
   "dependencies": {
     "express": "^4.17.1",
     "flocking": "^2.0.2",
-    "nexusui": "^2.1.6"
+    "nexusui": "^2.1.6",
+    "jquery-ui-dist": "^1.12.1"
   },
   "engines": {
     "node": "12.x"

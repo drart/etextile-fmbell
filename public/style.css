@@ -10,7 +10,7 @@ body {
   line-height: 1.5em;
 }
 
-button {
+.button {
   background-color: blue;
   color: lavender;
   border: 2px solid currentColor;
@@ -22,7 +22,7 @@ button {
   max-width: 20ch;
 }
 
-button:hover {
+.button:hover {
   background-color: lavender;
   color: blue;
 }
