@@ -4,7 +4,7 @@ fluid.defaults("adam.synth.fmbell", {
     harmonicityRatio: 2,
     frequency: 200,
     mul: 0.5,
-    
+
     ampEnv: {
         ugen: "flock.ugen.line",
         start: "{that}.options.mul",
@@ -56,40 +56,40 @@ fluid.defaults("adam.synth.fmbell", {
 
 // Define an Infusion component that connects to the teensy MIDI controller
 fluid.defaults("adam.midi.teensy",{
-  gradeNames: ["flock.midi.connection"],
-  openImmediately: true,
-  sysex: true,
-  ports: {
-      input: {
-        name: "Soft MIDI"
-      }
-  },
-  listeners: {
-      /*
+    gradeNames: ["flock.midi.connection"],
+    openImmediately: true,
+    sysex: true,
+    ports: {
+        input: {
+            name: "Soft MIDI"
+        }
+    },
+    listeners: {
+        /*
     onReady: {
       func: console.log,
       args: "{that}"
     },
     */
-    control: {
-      funcName: "adam.midi.teensy.controlHandler",
-      args: ["{that}", "{arguments}.0"]
+        control: {
+            funcName: "adam.midi.teensy.controlHandler",
+            args: ["{that}", "{arguments}.0"]
+        },
     },
-  },
-  events: {
-    pressure1: null,
-    pressure2: null
-  }
+    events: {
+        pressure1: null,
+        pressure2: null
+    }
 });
 
 adam.midi.teensy.controlHandler = function(that, msg){
-  
-  if (msg.number === 12){
-    that.events.pressure1.fire(msg.value);
-  }  
-  if( msg.number === 13){
-    that.events.pressure2.fire(msg.value);
-  }
+
+    if (msg.number === 12){
+        that.events.pressure1.fire(msg.value);
+    }  
+    if( msg.number === 13){
+        that.events.pressure2.fire(msg.value);
+    }
 };
 
 // Define an Infusion component that represents your composition.
@@ -97,11 +97,14 @@ fluid.defaults("adam.composition", {
     gradeNames: ["fluid.component"],
 
     components: {
+        enviro: {
+            type: "flock.enviro"
+        },
         controller: {
-          type: "adam.midi.teensy"
+            type: "adam.midi.teensy"
         },
         bell1: {
-          type: "adam.synth.fmbell"
+            type: "adam.synth.fmbell"
         },
         bell2: {
             type: "adam.synth.fmbell",
@@ -134,15 +137,28 @@ fluid.defaults("adam.composition", {
             }
         },
         playButton: {
-          type: "flock.ui.enviroPlayButton",
-          container: "#play-button"
+            type: "flock.ui.enviroPlayButton",
+            container: "#play-button",
+            options: {
+                listeners: {
+                    // Due to a bug in Flocking, we need to
+                    // connect/disconnect the Nexus components
+                    // whenever the environment is played or pauses.
+                    "onPlay.connectVisualization": {
+                        func: "{nexusui}.events.onConnect.fire"
+                    },
+                    "onPause.disconnectVisualization": {
+                        func: "{nexusui}.events.onDisconnect.fire"
+                    }
+                }
+            }
         },
         bell1Button: {
-          type: "adam.bellButton",
-          container: "#bell1-button",
-          options: {
-              bell: "{bell1}"
-          }
+            type: "adam.bellButton",
+            container: "#bell1-button",
+            options: {
+                bell: "{bell1}"
+            }
         },
         bell2Button: {
             type: "adam.bellButton",
@@ -192,7 +208,7 @@ fluid.defaults("adam.composition", {
             options: {
                 bell: "{bell2}"
             }
-       },
+        },
         bell3Drop: {
             type: "adam.belldrop",
             container: "#bell3-receiver",
@@ -220,6 +236,10 @@ fluid.defaults("adam.composition", {
             options: {
                 bell:  "{bell6}"
             }
+        },
+        nexusui: {
+            type: "flock.ui.nexusui",
+            container: "#viz"
         }
 
     },
@@ -233,7 +253,7 @@ fluid.defaults("adam.composition", {
             func: console.log,
             args: "{that}"
         },
-    /*
+        /*
 
         "{controller}.events.pressure1": {
             funcName: "{synth}.set",
@@ -275,11 +295,11 @@ adam.midi.teensy.noteOnHandler = function(that, msg){
 
 fluid.defaults("adam.simpleButton", {
     gradeNames: "fluid.viewComponent",
-    
+
     events: {
         onAction: null
     },
-    
+
     listeners: {
         "onCreate.bindButton": {
             this: "{that}.container",
@@ -332,16 +352,99 @@ fluid.defaults("adam.belldrop", {
 });
 
 fluid.defaults("adam.bellButton", {
-  gradeNames: ["adam.simpleButton", "adam.jqueryui.draggable"],
-  
-  bell: null,
-  
-  listeners: {
-    onAction: {
-      funcName: "{that}.options.bell.events.strike.fire"
+    gradeNames: ["adam.simpleButton", "adam.jqueryui.draggable"],
+
+    bell: null,
+
+    listeners: {
+        onAction: {
+            funcName: "{that}.options.bell.events.strike.fire"
+        }
     }
-  }
-  
+
 });
+
+
+
+
+fluid.defaults("flock.ui.nexusui", {
+    gradeNames: "fluid.viewComponent",
+
+    members: {
+        scope: null,
+        spectrogram: null
+    },
+
+    model: {
+        width: 300,
+        height: 100
+    },
+
+    selectors: {
+        scope: "#scope",
+        spectogram: "#spectogram"
+    },
+
+    events: {
+        onConnect: null,
+        onDisconnect: null
+    },
+
+    listeners: {
+        "onCreate.setWidth":{
+            priority: "first",
+            funcName: "flock.ui.nexusui.setWidth",
+            args: "{that}"
+        },
+        "onCreate.createScope": {
+            funcName: "flock.ui.nexusui.createScope",
+            args: "{that}"
+        },
+        "onCreate.createSpectrum":{
+            funcName: "flock.ui.nexusui.createSpectrum",
+            args: "{that}"
+        },
+        "onConnect.connectScope": {
+            "this": "{that}.scope",
+            method: "connect",
+            args: "{enviro}.audioSystem.nativeNodeManager.outputNode"
+        },
+        "onConnect.connectSpectrum": {
+            "this": "{that}.spectogram",
+            method: "connect",
+            args: "{enviro}.audioSystem.nativeNodeManager.outputNode"
+        },
+        "onDisconnect.disconnectScope": {
+            "this": "{that}.scope",
+            method: "disconnect",
+            args: "{enviro}.audioSystem.nativeNodeManager.outputNode"
+        },
+        "onDisconnect.disconnectSpectrum": {
+            "this": "{that}.spectogram",
+            method: "disconnect",
+            args: "{enviro}.audioSystem.nativeNodeManager.outputNode"
+        }
+    }
+});
+
+flock.ui.nexusui.setWidth= function( that ){
+    that.applier.change( "width", that.container.innerWidth() );
+    console.log( that.container.children() );
+    console.log( that.model );
+};
+
+flock.ui.nexusui.createSpectrum = function( that ){
+    that.scope = new Nexus.Oscilloscope( that.options.selectors.scope, {
+        size: [that.model.width, that.model.height]
+    });
+};
+
+flock.ui.nexusui.createScope = function( that ){
+    that.spectogram = new Nexus.Spectrogram( that.options.selectors.scope, {
+        size: [that.model.width, that.model.height]
+    });
+};
+
+
 
 adam.composition();
